@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine ❤️</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#ff4e8a,#ff99c8);
+font-family:Arial,sans-serif;
+text-align:center;
+color:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+padding:20px;
+overflow-x:hidden;
+}
+
+h1{font-size:28px;margin-bottom:10px;}
+h3{margin:20px 0 10px;}
+
+.buttons{
+position:relative;
+width:260px;
+height:120px;
+margin-top:20px;
+}
+
+.buttons button{
+padding:12px 24px;
+border:none;
+border-radius:25px;
+cursor:pointer;
+position:absolute;
+font-size:16px;
+}
+
+#yesBtn{background:#ff0066;color:white;left:20%;top:40%;}
+#noBtn{background:white;color:#ff0066;left:55%;top:40%;}
+
+.message,
+.playlist,
+.image-buttons,
+.love-letter-btn{
+display:none;
+margin-top:15px;
+width:100%;
+max-width:900px;
+}
+
+.button-row{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:12px;
+margin-top:10px;
+}
+
+.button-row button{
+padding:10px 18px;
+border-radius:20px;
+border:none;
+cursor:pointer;
+background:white;
+color:#ff0066;
+font-size:14px;
+white-space:nowrap;
+}
+
+.love-letter-btn button{
+padding:12px 24px;
+border-radius:25px;
+border:none;
+cursor:pointer;
+background:white;
+color:#ff0066;
+font-size:15px;
+}
+
+.popup{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.85);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:999;
+padding:20px;
+}
+
+.popup img{
+width:90%;
+max-width:320px;
+border-radius:15px;
+margin-bottom:15px;
+}
+
+.popup-text{
+background:white;
+color:#ff0066;
+padding:20px;
+border-radius:15px;
+max-width:90%;
+margin-bottom:15px;
+line-height:1.6;
+white-space:pre-line;
+}
+
+.close-btn{
+padding:8px 20px;
+border:none;
+border-radius:20px;
+background:#ff0066;
+color:white;
+cursor:pointer;
+}
+
+.burst-heart{
+position:fixed;
+font-size:25px;
+pointer-events:none;
+animation:burst 1.2s ease-out forwards;
+}
+
+@keyframes burst{
+0%{transform:scale(0.5);opacity:1;}
+100%{transform:translate(var(--x),var(--y)) scale(1.5);opacity:0;}
+}
+
+.fall-item{
+position:fixed;
+top:-20px;
+font-size:22px;
+animation:fallDown linear infinite;
+pointer-events:none;
+}
+
+@keyframes fallDown{
+to{transform:translateY(110vh) rotate(360deg);opacity:0.9;}
+}
+
+@media (max-width:600px){
+h1{font-size:22px;}
+.button-row button{
+font-size:13px;
+padding:8px 14px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<h1>Will You Be My Valentine? 💖</h1>
+
+<div class="buttons">
+<button id="yesBtn">Yes ❤️</button>
+<button id="noBtn">No 😢</button>
+</div>
+
+<div class="message" id="loveMessage">
+I knew you would say YES! 😍❤️
+</div>
+
+<div class="playlist" id="playlist">
+<h3>Choose Our Song 💕</h3>
+<div class="button-row">
+<button onclick="playSong('love1.mp3')">Ur Fav ▶</button>
+<button onclick="playSong('love2.mp3')">Manifesting ❤️ ▶</button>
+<button onclick="playSong('love3.mp3')">Our Fav 💙 ▶</button>
+<button onclick="playSong('love4.mp3')">Everytime we meet 😘 ▶</button>
+<button onclick="playSong('love5.mp3')">My Man 🩵 ▶</button>
+<button onclick="playSong('love6.mp3')">Alagii 💕 ▶</button>
+</div>
+</div>
+
+<div class="image-buttons" id="imageButtons">
+<h3>Open Our Memories 📸</h3>
+<div class="button-row">
+<button onclick="openImage('photo1.jpg','This was our dream life together 💕')">Memory 1</button>
+<button onclick="openImage('photo3.jpg','Your smile is my favorite view 😍')">Memory 2</button>
+<button onclick="openImage('photo2.jpg','Every moment with you is magical ✨')">Memory 3</button>
+</div>
+</div>
+
+<div class="love-letter-btn" id="loveLetterBtn">
+<button onclick="openLoveLetter()">💌 Open My Love Letter</button>
+</div>
+
+<div class="popup" id="popup">
+<img id="popupImg">
+<div class="popup-text" id="popupText"></div>
+<button class="close-btn" onclick="closePopup()">Close ❤️</button>
+</div>
+
+<div class="popup" id="loveLetterPopup">
+<div class="popup-text">
+<p id="typeText"></p>
+</div>
+<button class="close-btn" onclick="closeLoveLetter()">Close ❤️</button>
+</div>
+
+<!-- ONLY ONE AUDIO PLAYER -->
+<audio id="mainAudio"></audio>
+
+<script>
+const audio=document.getElementById("mainAudio");
+
+const noBtn=document.getElementById("noBtn");
+const yesBtn=document.getElementById("yesBtn");
+const message=document.getElementById("loveMessage");
+const playlist=document.getElementById("playlist");
+const imageButtons=document.getElementById("imageButtons");
+const loveLetterBtn=document.getElementById("loveLetterBtn");
+
+const popup=document.getElementById("popup");
+const popupImg=document.getElementById("popupImg");
+const popupText=document.getElementById("popupText");
+
+const lovePopup=document.getElementById("loveLetterPopup");
+const typeText=document.getElementById("typeText");
+
+let showerInterval;
+let typingInterval;
+
+/* UNIVERSAL AUDIO CONTROLLER */
+function playSong(file){
+audio.pause();
+audio.currentTime=0;
+audio.src=file;
+audio.load();
+audio.play().catch(()=>{});
+}
+
+/* IMAGE POPUP */
+function openImage(img,text){
+popup.style.display="flex";
+popupImg.src=img;
+popupText.innerText=text;
+}
+
+function closePopup(){
+popup.style.display="none";
+}
+
+/* LOVE LETTER */
+const loveParagraph=`My Alagiii ❤️,
+
+From the moment you entered my life,
+everything became brighter and meaningful.
+
+Your smile is my peace.
+Your voice is my comfort.
+Your presence is my happiest place.
+
+I don’t just love you…
+I choose you.
+Today. Tomorrow. Forever. 💍❤️
+Happy Valentine my Everything💙.
+Hope Everything will be fine Oneday🫂💙.
+Love you forever Buttu💓🥰
+
+Ennil inaiya unnai adaiya
+enna thavangal seidheno <3
+🩵😍
+`;
+
+function openLoveLetter(){
+lovePopup.style.display="flex";
+
+/* Stop any current music and play letter music */
+playSong("letterMusic.mp3");
+
+startTyping();
+startShower();
+}
+
+function closeLoveLetter(){
+lovePopup.style.display="none";
+typeText.innerHTML="";
+clearInterval(showerInterval);
+clearInterval(typingInterval);
+audio.pause();
+audio.currentTime=0;
+}
+
+function startTyping(){
+let i=0;
+typeText.innerHTML="";
+typingInterval=setInterval(()=>{
+if(i<loveParagraph.length){
+typeText.innerHTML+=loveParagraph.charAt(i);
+i++;
+}else{
+clearInterval(typingInterval);
+}
+},40);
+}
+
+function startShower(){
+showerInterval=setInterval(()=>{
+const item=document.createElement("div");
+item.className="fall-item";
+item.innerHTML=Math.random()>0.5?"❤️":"🌹";
+item.style.left=Math.random()*100+"vw";
+item.style.animationDuration=(Math.random()*3+3)+"s";
+document.body.appendChild(item);
+setTimeout(()=>item.remove(),6000);
+},300);
+}
+
+function moveNoButton(){
+const container=document.querySelector(".buttons");
+const maxX=container.clientWidth-noBtn.offsetWidth;
+const maxY=container.clientHeight-noBtn.offsetHeight;
+noBtn.style.left=Math.random()*maxX+"px";
+noBtn.style.top=Math.random()*maxY+"px";
+}
+noBtn.addEventListener("touchstart",moveNoButton);
+noBtn.addEventListener("click",moveNoButton);
+
+yesBtn.addEventListener("click",function(){
+document.querySelector(".buttons").style.display="none";
+message.style.display="block";
+playlist.style.display="block";
+imageButtons.style.display="block";
+loveLetterBtn.style.display="block";
+celebrate();
+});
+
+function celebrate(){
+for(let i=0;i<25;i++){
+const heart=document.createElement("div");
+heart.className="burst-heart";
+heart.innerHTML="❤️";
+heart.style.left="50%";
+heart.style.top="50%";
+heart.style.setProperty('--x',(Math.random()-0.5)*600+"px");
+heart.style.setProperty('--y',(Math.random()-0.5)*600+"px");
+document.body.appendChild(heart);
+setTimeout(()=>heart.remove(),1200);
+}
+}
+</script>
+
+</body>
+</html>
